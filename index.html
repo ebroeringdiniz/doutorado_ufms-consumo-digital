@@ -11,8 +11,8 @@
     body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
     .font-encarte { font-family: 'Montserrat', sans-serif; }
     .preco-rs { font-size: 1.1rem; line-height: 1; vertical-align: top; }
-    .preco-int { font-size: 2.4rem; line-height: 0.9; font-weight: 900; }
-    .preco-dec { font-size: 1.2rem; line-height: 1; vertical-align: top; font-weight: 800; }
+    .preco-int { font-size: 2.3rem; line-height: 0.9; font-weight: 900; }
+    .preco-dec { font-size: 1.15rem; line-height: 1; vertical-align: top; font-weight: 800; }
     .preco-un { font-size: 0.75rem; color: #475569; display: block; font-weight: 600; }
     .badge-semaforo-a { background: #15803d; color: white; }
     .badge-semaforo-b { background: #84cc16; color: #14532d; }
@@ -21,7 +21,16 @@
     .badge-semaforo-e { background: #dc2626; color: white; }
   </style>
 </head>
-<body class="text-slate-800 pb-28">
+<body class="text-slate-800 pb-36">
+
+  <!-- TOAST DE AVISO FLUTUANTE (Orçamento / Limite de 2 itens) -->
+  <div id="toast-aviso" class="hidden fixed top-5 right-5 z-50 max-w-sm bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border-l-4 border-amber-400 flex items-start gap-3 transition-all duration-300">
+    <i class="fa-solid fa-circle-exclamation text-amber-400 text-lg mt-0.5"></i>
+    <div class="text-xs leading-relaxed">
+      <strong id="toast-titulo" class="block font-bold text-amber-300 uppercase tracking-wide mb-0.5">Atenção</strong>
+      <span id="toast-mensagem">Mensagem de validação.</span>
+    </div>
+  </div>
 
   <!-- BARRA DE CONTROLE DO PESQUISADOR (Oculta por padrão para participantes; ativada com ?admin=1) -->
   <header id="barra-pesquisador" class="hidden bg-slate-900 text-slate-200 text-xs py-2 px-4 shadow-md sticky top-0 z-50 border-b border-slate-700">
@@ -49,9 +58,9 @@
 
   <!-- CABEÇALHO DA PESQUISA UFMS ESTILO ENCARTE VAREJO -->
   <div class="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 text-white py-6 px-4 shadow-lg border-b-4 border-amber-400">
-    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-      <div class="text-center md:text-left">
-        <div class="flex items-center justify-center md:justify-start gap-2 text-emerald-300 text-xs font-bold uppercase tracking-wider mb-1">
+    <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
+      <div class="text-center lg:text-left">
+        <div class="flex items-center justify-center lg:justify-start gap-2 text-emerald-300 text-xs font-bold uppercase tracking-wider mb-1">
           <i class="fa-solid fa-graduation-cap text-base"></i>
           <span>Universidade Federal de Mato Grosso do Sul • PPGAD</span>
         </div>
@@ -61,11 +70,21 @@
         </p>
       </div>
 
-      <div class="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/20 text-center max-w-sm">
-        <p class="text-xs text-emerald-200 font-semibold uppercase tracking-wider mb-0.5">Instrução ao Participante</p>
-        <p class="text-xs text-slate-100 leading-snug">
-          Simule suas compras habituais escolhendo os produtos que levaria para sua casa. Ao concluir, clique em <strong>"Finalizar Compra"</strong>.
-        </p>
+      <!-- REGRAS DA COMPRA E SORTEIO REAL -->
+      <div class="bg-white/10 backdrop-blur-md rounded-xl p-3.5 border border-amber-400/50 max-w-xl w-full">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-400 text-slate-900 flex items-center justify-center text-lg font-black flex-shrink-0 shadow">
+            <i class="fa-solid fa-gift"></i>
+          </div>
+          <div class="text-left">
+            <p class="text-xs font-extrabold text-amber-300 uppercase tracking-wider">
+              Sorteio de 1 Carrinho de Compras Real!
+            </p>
+            <p class="text-xs text-slate-100 leading-snug mt-0.5">
+              Você possui um orçamento de <strong>R$ 100,00</strong>. Escolha os produtos que realmente deseja levar (<strong>máximo de 1 a 2 unidades de cada item</strong>). Ao finalizar, você informará seu e-mail e concorrerá ao sorteio para <strong>receber de verdade os produtos escolhidos no seu carrinho!</strong>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -96,16 +115,23 @@
 
   <!-- VITRINE / GRID DE PRODUTOS NO ESTILO ENCARTE (25 ITENS) -->
   <main class="max-w-7xl mx-auto px-4 mt-6">
-    <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-300">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-2 border-b border-slate-300">
       <div>
         <h2 class="text-lg font-black text-slate-800 uppercase tracking-wide flex items-center gap-2">
           <i class="fa-solid fa-basket-shopping text-emerald-700"></i> Seção de Ofertas, Mercearia & Hortifrúti
         </h2>
-        <span class="text-xs text-slate-500">Selecione as quantidades desejadas para adicionar ao seu carrinho</span>
+        <span class="text-xs text-slate-600">
+          Regra: Escolha de <strong>1 a 2 unidades no máximo</strong> por produto dentro do seu orçamento de <strong>R$ 100,00</strong>.
+        </span>
       </div>
-      <span class="text-xs font-semibold text-slate-600 bg-slate-200 px-2.5 py-1 rounded-full">
-        25 Produtos Disponíveis (Carnes, Laticínios, Mercearia & Hortifrúti)
-      </span>
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-bold text-emerald-900 bg-emerald-100 border border-emerald-300 px-3 py-1 rounded-full">
+          <i class="fa-solid fa-wallet mr-1"></i> Orçamento: R$ 100,00
+        </span>
+        <span class="text-xs font-semibold text-slate-600 bg-slate-200 px-2.5 py-1 rounded-full">
+          25 Produtos
+        </span>
+      </div>
     </div>
 
     <div id="grid-produtos" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
@@ -113,46 +139,70 @@
     </div>
   </main>
 
-  <!-- BARRA INFERIOR FIXA DO CARRINHO (ESTILO CHECKOUT) -->
+  <!-- BARRA INFERIOR FIXA DO CARRINHO COM CONTROLE DE ORÇAMENTO (R$ 100,00) -->
   <footer class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t-2 border-emerald-600 shadow-2xl py-3 px-4 z-40">
-    <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
-      <div class="flex items-center gap-4">
-        <div class="relative cursor-pointer">
-          <span class="w-12 h-12 rounded-full bg-emerald-700 text-white flex items-center justify-center text-xl shadow">
-            <i class="fa-solid fa-cart-shopping"></i>
-          </span>
-          <span id="badge-qtd-itens" class="absolute -top-1 -right-1 bg-amber-500 text-slate-900 font-extrabold text-xs w-5 h-5 rounded-full flex items-center justify-center border-2 border-white">0</span>
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+      
+      <!-- Resumo de Gasto e Barra de Orçamento -->
+      <div class="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-start">
+        <div class="flex items-center gap-3">
+          <div class="relative">
+            <span class="w-11 h-11 rounded-full bg-emerald-700 text-white flex items-center justify-center text-lg shadow">
+              <i class="fa-solid fa-cart-shopping"></i>
+            </span>
+            <span id="badge-qtd-itens" class="absolute -top-1 -right-1 bg-amber-500 text-slate-900 font-extrabold text-xs w-5 h-5 rounded-full flex items-center justify-center border-2 border-white">0</span>
+          </div>
+          <div>
+            <div class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Gasto no Carrinho</div>
+            <div class="text-xl font-black text-slate-900 leading-none" id="total-carrinho-display">R$ 0,00</div>
+          </div>
         </div>
-        <div>
-          <div class="text-[11px] text-slate-500 font-bold uppercase tracking-wider">Total do Seu Pedido</div>
-          <div class="text-xl md:text-2xl font-black text-slate-900" id="total-carrinho-display">R$ 0,00</div>
+
+        <!-- Indicador de Saldo Restante -->
+        <div class="bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200 min-w-[175px]">
+          <div class="flex justify-between text-[10px] font-bold uppercase mb-1">
+            <span class="text-slate-500">Saldo Restante:</span>
+            <span id="saldo-restante-display" class="text-emerald-700 font-extrabold">R$ 100,00</span>
+          </div>
+          <div class="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+            <div id="barra-progresso-orcamento" class="h-full bg-emerald-600 transition-all duration-300" style="width: 0%"></div>
+          </div>
         </div>
       </div>
 
-      <div class="flex items-center gap-2">
-        <button onclick="limparCarrinho()" class="text-xs text-slate-500 hover:text-rose-600 font-semibold px-2 py-1.5 transition hidden sm:inline">
+      <!-- Botões de Ação -->
+      <div class="flex items-center justify-end gap-2 w-full sm:w-auto">
+        <button onclick="limparCarrinho()" class="text-xs text-slate-500 hover:text-rose-600 font-semibold px-2.5 py-2 transition">
           <i class="fa-solid fa-trash-can mr-1"></i> Esvaziar
         </button>
-        <button onclick="iniciarCheckout()" class="bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-extrabold text-sm md:text-base px-5 md:px-7 py-3 rounded-xl shadow-lg hover:shadow-emerald-500/25 transition transform active:scale-95 flex items-center gap-2">
-          <span>Finalizar Compra</span>
+        <button onclick="iniciarCheckout()" class="w-full sm:w-auto justify-center bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-extrabold text-sm md:text-base px-6 py-3 rounded-xl shadow-lg hover:shadow-emerald-500/25 transition transform active:scale-95 flex items-center gap-2">
+          <span>Finalizar & Concorrer ao Carrinho</span>
           <i class="fa-solid fa-arrow-right"></i>
         </button>
       </div>
     </div>
   </footer>
 
-  <!-- MODAL OBRIGATÓRIO DE DADOS DEMOGRÁFICOS (SEXO E ANO DE NASCIMENTO) -->
+  <!-- MODAL OBRIGATÓRIO DE DADOS DEMOGRÁFICOS E E-MAIL PARA O SORTEIO -->
   <div id="modal-demografico" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border-t-8 border-emerald-600 animate-in fade-in zoom-in duration-200">
-      <div class="w-12 h-12 bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center mx-auto text-xl mb-3">
-        <i class="fa-solid fa-user-check"></i>
+      <div class="w-12 h-12 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center mx-auto text-xl mb-3">
+        <i class="fa-solid fa-gift"></i>
       </div>
-      <h3 class="text-lg font-black text-slate-900 text-center mb-1">Dados para a Pesquisa Científica</h3>
+      <h3 class="text-lg font-black text-slate-900 text-center mb-1">Finalizar Compra & Participar do Sorteio</h3>
       <p class="text-xs text-slate-600 text-center mb-4">
-        Para validação estatística do experimento de doutorado, por favor informe seu sexo e ano de nascimento:
+        Informe seus dados abaixo para registrar sua compra na pesquisa de doutorado da UFMS e concorrer aos <strong>produtos reais escolhidos no seu carrinho</strong>:
       </p>
 
-      <form id="form-demografico" onsubmit="confirmarDadosEEnviar(event)" class="space-y-4">
+      <form id="form-demografico" onsubmit="confirmarDadosEEnviar(event)" class="space-y-3.5">
+        <!-- E-mail para contato do Sorteio -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
+            Seu Melhor E-mail (Para contato do sorteio) <span class="text-rose-600">*</span>
+          </label>
+          <input type="email" id="campo-email" required placeholder="exemplo@email.com" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 bg-white text-slate-800 font-medium">
+        </div>
+
         <!-- Sexo -->
         <div>
           <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
@@ -183,7 +233,7 @@
             Voltar
           </button>
           <button type="submit" class="w-2/3 py-2.5 bg-emerald-700 hover:bg-emerald-600 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow transition">
-            Concluir & Enviar
+            Concluir & Concorrer
           </button>
         </div>
       </form>
@@ -226,19 +276,23 @@
       <div class="w-16 h-16 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto text-3xl mb-3">
         <i class="fa-solid fa-circle-check"></i>
       </div>
-      <h3 class="text-xl font-black text-slate-900 mb-1">Compra Simulada Concluída com Sucesso!</h3>
+      <h3 class="text-xl font-black text-slate-900 mb-1">Participação e Sorteio Confirmados!</h3>
       <p class="text-xs text-slate-600 mb-4">
-        Sua participação foi registrada na base de dados do <strong>Doutorado em Administração da UFMS</strong>. Muito obrigado pela colaboração com a pesquisa científica!
+        Sua compra simulada foi registrada na base do <strong>Doutorado em Administração da UFMS</strong> e seu e-mail já está concorrendo ao carrinho real com os itens escolhidos!
       </p>
 
       <!-- RESUMO DA COMPRA -->
       <div class="bg-slate-50 rounded-xl p-4 text-left border border-slate-200 mb-4 text-xs space-y-2">
         <div class="flex justify-between border-b pb-1 font-bold text-slate-700">
-          <span>Total de Itens:</span>
+          <span>E-mail inscrito no sorteio:</span>
+          <span id="resumo-email" class="text-emerald-700">--</span>
+        </div>
+        <div class="flex justify-between border-b pb-1 font-bold text-slate-700">
+          <span>Total de Itens no Carrinho:</span>
           <span id="resumo-qtd">0 un</span>
         </div>
         <div class="flex justify-between border-b pb-1 font-bold text-slate-700">
-          <span>Gasto Total:</span>
+          <span>Valor Utilizado (de R$ 100,00):</span>
           <span id="resumo-total">R$ 0,00</span>
         </div>
         <div class="flex justify-between border-b pb-1 text-emerald-800 font-bold">
@@ -256,7 +310,7 @@
       </div>
 
       <button onclick="reiniciarExperimento()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition">
-        Realizar Nova Simulação
+        Concluir e Fechar
       </button>
     </div>
   </div>
@@ -291,8 +345,10 @@
   </div>
 
   <script>
-    // URL OFICIAL FIXA DO APPS SCRIPT
+    // CONFIGURAÇÕES GERAIS DO EXPERIMENTO
     const DEFAULT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbybxCXxO32qpvglwD30kXc5OhHnYLQHTqEYr-TmM9e8fuoowPNeGwWjOHCgEDU33Lpv/exec";
+    const ORCAMENTO_MAXIMO = 100.00;
+    const MAX_UNIDADES_POR_ITEM = 2;
 
     // ==========================================
     // POPULAR SELECT DE ANO DE NASCIMENTO (2010 a 1935)
@@ -317,13 +373,13 @@
     }
 
     // ==========================================
-    // BASE DE DADOS DOS PRODUTOS (COM FOTOS REAIS)
+    // BASE DE DADOS DOS 25 PRODUTOS (FOTOS REAIS DISTINTAS E AUDITADAS)
     // ==========================================
     const PRODUTOS = [
-      // 1. Ovos Caipiras Livres de Gaiola (Sustentável)
+      // 1. Ovos Caipiras Livres de Gaiola (Sustentável - Ovos Vermelhos/Caipiras no Ninho/Cartela)
       {
         id: 'ovos_caipiras',
-        nome: 'Ovos Caipiras Livres de Gaiola Cartela c/ 10 un.',
+        nome: 'Ovos Caipiras Vermelhos Livres de Gaiola Cartela 10 un.',
         preco: 14.50,
         unidade: 'cartela',
         sustentavel: true,
@@ -335,24 +391,24 @@
           ecoTexto: 'Galinhas Livres • 100% Caipira',
           origemTitulo: 'Granja Agroecológica Pôr do Sol',
           origemLocal: 'Terenos - MS (42 km da capital)',
-          origemDesc: 'Galinhas criadas soltas com alimentação vegetal e pastoreio natural. Respeito ao bem-estar animal com certificação.',
+          origemDesc: 'Galinhas criadas soltas em pastoreio natural e alimentação vegetal livre de antibióticos.',
           origemImg: 'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&w=600&q=80'
         }
       },
-      // 2. Ovos Brancos Convencionais
+      // 2. Ovos Brancos Convencionais (Ovos Brancos de Granja)
       {
         id: 'ovos_brancos_comuns',
-        nome: 'Ovos Brancos Especiais de Granja Cartela c/ 10 un.',
+        nome: 'Ovos Brancos Tradicionais de Granja Cartela 10 un.',
         preco: 11.90,
         unidade: 'cartela',
         sustentavel: false,
-        img: 'https://images.unsplash.com/photo-1516448620398-c5f44bf9f441?auto=format&fit=crop&w=600&q=80',
+        img: 'https://images.unsplash.com/photo-1506976785307-8732e854ad03?auto=format&fit=crop&w=600&q=80',
         nudge: null
       },
-      // 3. Suco de Laranja Integral Cooperativa MS (Sustentável)
+      // 3. Suco de Laranja Integral Cooperativa MS (Sustentável - Garrafa de Vidro c/ Laranjas Frescas)
       {
         id: 'suco_laranja_integral',
-        nome: 'Suco de Laranja 100% Integral da Região Garrafa 1L',
+        nome: 'Suco de Laranja 100% Integral Cooperativa MS Garrafa 1L',
         preco: 12.90,
         unidade: 'un.',
         sustentavel: true,
@@ -364,24 +420,24 @@
           ecoTexto: 'Sem Conservantes • Pomar MS',
           origemTitulo: 'Cooperativa Citrícola do Vale do Aquidauana',
           origemLocal: 'Anastácio - MS (130 km da capital)',
-          origemDesc: 'Laranjas colhidas no ponto ótimo por produtores cooperados do MS. Sem açúcar e com frete reduzido.',
+          origemDesc: 'Laranjas colhidas no ponto ótimo por pequenos citricultores cooperados de Mato Grosso do Sul.',
           origemImg: 'https://images.unsplash.com/photo-1528825871115-3581a5387919?auto=format&fit=crop&w=600&q=80'
         }
       },
-      // 4. Néctar de Laranja Industrial
+      // 4. Néctar de Laranja Industrial (Convencional)
       {
         id: 'suco_nectar_industrial',
-        nome: 'Néctar de Laranja Tradicional Adoçado Tetra Pak 1L',
+        nome: 'Refresco Néctar de Laranja Tradicional Adoçado 1L',
         preco: 8.90,
         unidade: 'un.',
         sustentavel: false,
-        img: 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?auto=format&fit=crop&w=600&q=80',
+        img: 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?auto=format&fit=crop&w=600&q=80',
         nudge: null
       },
-      // 5. Arroz Agroecológico Sem Agrotóxicos (Sustentável)
+      // 5. Arroz Integral/Agroecológico Sem Agrotóxicos (Sustentável - Grãos Rústicos)
       {
         id: 'arroz_agroecologico',
-        nome: 'Arroz Especial Agroecológico Grãos Selecionados 1kg',
+        nome: 'Arroz Agroecológico Orgânico Sem Agrotóxicos 1kg',
         preco: 9.80,
         unidade: 'pct.',
         sustentavel: true,
@@ -390,27 +446,27 @@
           tag: 'Manejo Sustentável de Várzea',
           ecoClass: 'badge-semaforo-a',
           ecoLetra: 'A',
-          ecoTexto: '0% Adubos Químicos de Síntese',
-          origemTitulo: 'Associação de Pequenos Produtores do Miranda',
+          ecoTexto: '0% Defensivos Químicos',
+          origemTitulo: 'Associação de Produtores Agroecológicos do Miranda',
           origemLocal: 'Miranda - MS (Bacia do Pantanal)',
-          origemDesc: 'Cultivo sustentável com controle biológico, preservando as águas e a biodiversidade pantaneira.',
+          origemDesc: 'Cultivo sustentável com controle biológico de pragas, preservando as águas e a biodiversidade pantaneira.',
           origemImg: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=600&q=80'
         }
       },
-      // 6. Arroz Branco Tradicional
+      // 6. Arroz Branco Tradicional (Convencional - Arroz Branco Polido)
       {
         id: 'arroz_branco_comum',
-        nome: 'Arroz Branco Polido Subtipo 1 Pacote 1kg',
+        nome: 'Arroz Branco Polido Tradicional Tipo 1 Pacote 1kg',
         preco: 7.90,
         unidade: 'pct.',
         sustentavel: false,
         img: 'https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?auto=format&fit=crop&w=600&q=80',
         nudge: null
       },
-      // 7. Iogurte Natural Orgânico em Vidro Retornável (Sustentável)
+      // 7. Iogurte Natural Orgânico em Vidro Retornável (Sustentável - Pote de Vidro)
       {
         id: 'iogurte_organico_vidro',
-        nome: 'Iogurte Natural Orgânico em Vidro Retornável 500g',
+        nome: 'Iogurte Natural Orgânico em Pote de Vidro Retornável 500g',
         preco: 13.90,
         unidade: 'un.',
         sustentavel: true,
@@ -421,112 +477,112 @@
           ecoLetra: 'A',
           ecoTexto: '-80% Resíduo Plástico • MS',
           origemTitulo: 'Laticínio Artesanal Vale do Aporé',
-          origemLocal: 'Chapadão do Sul - MS (Cinturão Lácteo)',
-          origemDesc: 'Leite de vacas alimentadas a pasto sob manejo rotacionado. Embalagem de vidro reutilizável com logística reversa regional.',
+          origemLocal: 'Chapadão do Sul - MS',
+          origemDesc: 'Leite orgânico de vacas criadas a pasto. Pote de vidro retornável que evita o descarte de plástico.',
           origemImg: 'https://images.unsplash.com/photo-1527153857715-3908f2ae5e81?auto=format&fit=crop&w=600&q=80'
         }
       },
       // 8. Iogurte Tradicional Pote Plástico (Convencional)
       {
         id: 'iogurte_tradicional_plastico',
-        nome: 'Iogurte Natural Integral Tradicional Pote Plástico 500g',
+        nome: 'Iogurte Tradicional Adoçado Pote Plástico 500g',
         preco: 10.50,
         unidade: 'un.',
         sustentavel: false,
-        img: 'https://images.unsplash.com/photo-1571212515416-fef01fc43637?auto=format&fit=crop&w=600&q=80',
+        img: 'https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=600&q=80',
         nudge: null
       },
-      // 9. Carne Bovina Rastreável Baixo Carbono Pantanal (Sustentável)
+      // 9. Carne Bovina Crua Rastreável Baixo Carbono Pantanal (Sustentável - Peça Crua Fresca c/ Alecrim)
       {
         id: 'carne_pantanal_baixo_carbono',
-        nome: 'Carne Bovina Corte Nobre Baixo Carbono Pantanal 500g',
+        nome: 'Carne Bovina Fresca Baixo Carbono Pantanal 500g',
         preco: 29.90,
         unidade: 'bdj.',
         sustentavel: true,
         img: 'https://images.unsplash.com/photo-1603048588665-791ca8aea617?auto=format&fit=crop&w=600&q=80',
         nudge: {
-          tag: 'Carne Carbono Neutro • Pecuária Regenerativa',
+          tag: 'Carne Carbono Neutro • MS',
           ecoClass: 'badge-semaforo-a',
           ecoLetra: 'A',
-          ecoTexto: 'Pecuária Sustentável • Desmatamento 0',
-          origemTitulo: 'Fazenda Agropecuária Sustentável Pantaneira',
+          ecoTexto: 'Pecuária Regenerativa • Desmatamento 0',
+          origemTitulo: 'Fazenda Sustentável Pantanal Nhecolândia',
           origemLocal: 'Aquidauana - MS (Pantanal Sul-Mato-Grossense)',
-          origemDesc: 'Bovinos criados em pastagens nativas com integração florestal e certificação de balanço de carbono auditado.',
+          origemDesc: 'Bovinos criados em pastagens nativas pantaneiras com integração lavoura-pecuária-floresta e selo Carbono Neutro.',
           origemImg: 'https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=600&q=80'
         }
       },
-      // 10. Carne Bovina Tradicional (Convencional)
+      // 10. Carne Bovina Tradicional Crua (Convencional - Cortes Crus de Açougue)
       {
         id: 'carne_bovina_comum',
-        nome: 'Carne Bovina Especial Resfriada em Bandeja 500g',
+        nome: 'Carne Bovina Tradicional Resfriada de Açougue 500g',
         preco: 24.90,
         unidade: 'bdj.',
         sustentavel: false,
-        img: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80',
+        img: 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?auto=format&fit=crop&w=600&q=80',
         nudge: null
       },
-      // 11. Café Orgânico (Sustentável)
+      // 11. Café Especial Orgânico (Sustentável - Embalagem Kraft)
       {
         id: 'cafe_organico',
-        nome: 'Café Especial Orgânico em Grãos ou Moído 500g',
+        nome: 'Café Especial Orgânico 100% Arábica Pacote 500g',
         preco: 22.90,
-        unidade: 'un.',
+        unidade: 'pct.',
         sustentavel: true,
         img: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?auto=format&fit=crop&w=600&q=80',
         nudge: {
-          tag: 'Orgânico Certificado',
+          tag: 'Orgânico Certificado • Agrofloresta',
           ecoClass: 'badge-semaforo-a',
           ecoLetra: 'A',
           ecoTexto: '-64% Emissões de CO2',
           origemTitulo: 'Fazenda Agroecológica Serra da Bodoquena',
           origemLocal: 'Bodoquena - MS (180 km da capital)',
-          origemDesc: 'Cultivado sob sistema agroflorestal sombreado, sem agrotóxicos e preservando nascentes do Pantanal sul-mato-grossense.',
+          origemDesc: 'Cultivado sob sombra de árvores nativas sem agrotóxicos, protegendo nascentes da Serra da Bodoquena.',
           origemImg: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=600&q=80'
         }
       },
-      // 12. Café Tradicional
+      // 12. Café Tradicional (Convencional - Grãos Torrados Escuros)
       {
         id: 'cafe_tradicional',
-        nome: 'Café Torrado e Moído Tradicional 500g',
+        nome: 'Café Torrado e Moído Tradicional Extra Forte 500g',
         preco: 17.50,
-        unidade: 'un.',
+        unidade: 'pct.',
         sustentavel: false,
-        img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80',
+        img: 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?auto=format&fit=crop&w=600&q=80',
         nudge: null
       },
-      // 13. Chocolate 70% Cacau Rastreado (Sustentável)
+      // 13. Chocolate 70% Cacau Rastreado (Sustentável - Barra Amarga Rústica c/ Cacau)
       {
         id: 'chocolate_cacau_sustentavel',
-        nome: 'Chocolate Amargo 70% Cacau Sustentável 100g',
+        nome: 'Chocolate Amargo 70% Cacau Nativo Rastreado Barra 100g',
         preco: 14.90,
         unidade: 'un.',
         sustentavel: true,
-        img: 'https://images.unsplash.com/photo-1549007994-cb92caebd54b?auto=format&fit=crop&w=600&q=80',
+        img: 'https://images.unsplash.com/photo-1548907040-4baa42d10919?auto=format&fit=crop&w=600&q=80',
         nudge: {
           tag: 'Cacau Nativo Regenerativo',
           ecoClass: 'badge-semaforo-a',
           ecoLetra: 'A',
-          ecoTexto: 'Cadeia Desmatamento Zero',
+          ecoTexto: 'Comércio Justo • Floresta em Pé',
           origemTitulo: 'Cooperativa Agroextrativista Vale do Juruena',
           origemLocal: 'Cacau de Floresta Nativa',
-          origemDesc: 'Cacau selvagem colhido por comunidades tradicionais. Ajuda a manter a floresta em pé e remunera os produtores locais com comércio justo.',
+          origemDesc: 'Cacau agroflorestal colhido por famílias extrativistas, garantindo conservação da floresta e renda justa.',
           origemImg: 'https://images.unsplash.com/photo-1511497584788-87676104235f?auto=format&fit=crop&w=600&q=80'
         }
       },
-      // 14. Chocolate Comum
+      // 14. Chocolate Barra Ao Leite Comum (Convencional - Tablete de Chocolate ao Leite)
       {
         id: 'chocolate_ao_leite',
         nome: 'Chocolate Barra Tradicional ao Leite 90g',
         preco: 8.90,
         unidade: 'un.',
         sustentavel: false,
-        img: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=600&q=80',
+        img: 'https://images.unsplash.com/photo-1511381939415-e44015466834?auto=format&fit=crop&w=600&q=80',
         nudge: null
       },
-      // 15. Morango Orgânico Local MS (Sustentável)
+      // 15. Morango Orgânico Local MS (Sustentável - Cesta Rústica Colheita Fresca)
       {
         id: 'morango_organico',
-        nome: 'Morango Orgânico Selecionado Bandeja 250g',
+        nome: 'Morango Orgânico Fresco Produtor Local MS 250g',
         preco: 11.90,
         unidade: 'bdj.',
         sustentavel: true,
@@ -538,24 +594,24 @@
           ecoTexto: '0% Defensivos Químicos',
           origemTitulo: 'Chácara Vale Verde dos Produtores de Terenos',
           origemLocal: 'Cinturão Verde de Terenos - MS (35 km)',
-          origemDesc: 'Colheita da madrugada entregue no mesmo dia. Redução de 90% na emissão de transporte comparado a frutas trazidas de outros estados.',
+          origemDesc: 'Colheita da madrugada entregue diretamente em Campo Grande, reduzindo 90% das emissões de transporte.',
           origemImg: 'https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?auto=format&fit=crop&w=600&q=80'
         }
       },
-      // 16. Morango Convencional
+      // 16. Morango Convencional (Convencional - Morangos Soltos)
       {
         id: 'morango_convencional',
-        nome: 'Morango Doce Selecionado Bandeja 250g',
+        nome: 'Morango Tradicional Bandeja 250g',
         preco: 8.50,
         unidade: 'bdj.',
         sustentavel: false,
-        img: 'https://images.unsplash.com/photo-1587393855524-087f83d95bc9?auto=format&fit=crop&w=600&q=80',
+        img: 'https://images.unsplash.com/photo-1543528176-61b239494933?auto=format&fit=crop&w=600&q=80',
         nudge: null
       },
       // 17. Alface Hidropônica Sustentável (Sustentável)
       {
         id: 'alface_sustentavel',
-        nome: 'Alface Americana Hidropônica Sustentável Unidade',
+        nome: 'Alface Americana Hidropônica Sustentável Pé',
         preco: 4.80,
         unidade: 'un.',
         sustentavel: true,
@@ -564,27 +620,27 @@
           tag: 'Economia de 85% de Água',
           ecoClass: 'badge-semaforo-a',
           ecoLetra: 'A',
-          ecoTexto: 'Produção Sustentável MS',
-          origemTitulo: 'Horta Hidropônica Limpa Campo Grande',
+          ecoTexto: 'Cinturão Verde de Campo Grande',
+          origemTitulo: 'Horta Hidropônica Sustentável MS',
           origemLocal: 'Zona Rural Leste - Campo Grande - MS',
-          origemDesc: 'Cultivada com reaproveitamento integral da água da chuva em estufas climatizadas, sem contato com solo contaminado.',
+          origemDesc: 'Cultivada com reaproveitamento de água da chuva e energia solar, sem uso de herbicidas.',
           origemImg: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=600&q=80'
         }
       },
-      // 18. Alface Comum
+      // 18. Alface Comum (Convencional - Folhas Verdes)
       {
         id: 'alface_crespa_comum',
-        nome: 'Alface Crespa Tradicional Maço Fresco',
+        nome: 'Alface Crespa Tradicional Maço',
         preco: 3.20,
         unidade: 'un.',
         sustentavel: false,
         img: 'https://images.unsplash.com/photo-1556801712-76c8eb07bbc9?auto=format&fit=crop&w=600&q=80',
         nudge: null
       },
-      // 19. Tomate Orgânico Rama (Sustentável)
+      // 19. Tomate Orgânico em Rama (Sustentável - Cacho Fresco na Rama)
       {
         id: 'tomate_organico',
-        nome: 'Tomate Saladete Orgânico Bandeja 500g',
+        nome: 'Tomate Orgânico em Rama Certificado 500g',
         preco: 7.90,
         unidade: 'bdj.',
         sustentavel: true,
@@ -593,27 +649,27 @@
           tag: 'Adubação 100% Biológica',
           ecoClass: 'badge-semaforo-a',
           ecoLetra: 'A',
-          ecoTexto: 'Solo Vivo & Saudável',
+          ecoTexto: 'Solo Vivo • Livre de Agrotóxicos',
           origemTitulo: 'Associação Hortigranjeira de Rochedo',
           origemLocal: 'Rochedo - MS (75 km da capital)',
-          origemDesc: 'Frutos colhidos em ponto ideal de maturação natural, adubados com compostagem orgânica e livres de agrotóxicos.',
+          origemDesc: 'Tomates maturados naturalmente na planta, adubados com compostagem orgânica certificada.',
           origemImg: 'https://images.unsplash.com/photo-1592417817098-8f3d6910985b?auto=format&fit=crop&w=600&q=80'
         }
       },
-      // 20. Tomate Convencional
+      // 20. Tomate Convencional Granel (Convencional - Tomates Soltos na Banca, foto bem diferente!)
       {
         id: 'tomate_convencional',
-        nome: 'Tomate Longa Vida Especial Vermelho 1kg',
+        nome: 'Tomate Longa Vida Tradicional a Granel 1kg',
         preco: 6.49,
         unidade: 'kg',
         sustentavel: false,
-        img: 'https://images.unsplash.com/photo-1546470427-e26264be0b11?auto=format&fit=crop&w=600&q=80',
+        img: 'https://images.unsplash.com/photo-1518977822534-7049a61ee0c2?auto=format&fit=crop&w=600&q=80',
         nudge: null
       },
-      // 21. Banana Orgânica Climatizada (Sustentável)
+      // 21. Banana Prata Orgânica (Sustentável - Penca Rústica)
       {
         id: 'banana_organica',
-        nome: 'Banana Prata Orgânica Certificada Climatizada 1kg',
+        nome: 'Banana Prata Orgânica Agricultura Familiar 1kg',
         preco: 8.90,
         unidade: 'kg',
         sustentavel: true,
@@ -625,11 +681,11 @@
           ecoTexto: 'Pegada de Carbono Neutra',
           origemTitulo: 'Sítio Frutos da Terra Aquidauana',
           origemLocal: 'Distrito de Piraputanga - Aquidauana / MS',
-          origemDesc: 'Produzida no sopé da serra de Maracaju com manejo sustentável do solo e sem uso de fertilizantes sintéticos.',
+          origemDesc: 'Produzida no sopé da Serra de Maracaju com manejo agroecológico e conservação de solo.',
           origemImg: 'https://images.unsplash.com/photo-1528825871115-3581a5387919?auto=format&fit=crop&w=600&q=80'
         }
       },
-      // 22. Banana Comum
+      // 22. Banana Nanica Comum (Convencional - Fundo Amarelo Limpo)
       {
         id: 'banana_nanica_comum',
         nome: 'Banana Nanica Tradicional Granel 1kg',
@@ -639,40 +695,40 @@
         img: 'https://images.unsplash.com/photo-1603833665858-e61d17a86224?auto=format&fit=crop&w=600&q=80',
         nudge: null
       },
-      // 23. Paçoquita Rolha (Distrator do Encarte Original)
+      // 23. Paçoca Rolha de Amendoim (Distrator - Foto real de Paçoca de Amendoim)
       {
         id: 'pacoquita_rolha',
-        nome: 'Doce Paçoca Rolha Tradicional Pote 210g',
+        nome: 'Doce de Amendoim Paçoca Rolha Tradicional Pote 210g',
         preco: 11.90,
-        unidade: 'un.',
+        unidade: 'pote',
         sustentavel: false,
-        img: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=600&q=80',
+        img: 'data:image/webp;base64,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',
         nudge: null
       },
-      // 24. Amendoim Japonês (Distrator do Encarte Original)
+      // 24. Amendoim Torrado Crocante (Distrator - Foto real de Amendoim)
       {
         id: 'amendoim_japones',
         nome: 'Amendoim Tipo Japonês Crocante Pacote 500g',
-        preco: 23.90,
-        unidade: 'un.',
+        preco: 15.90,
+        unidade: 'pct.',
         sustentavel: false,
-        img: 'https://images.unsplash.com/photo-1569460275917-70300d696afd?auto=format&fit=crop&w=600&q=80',
+        img: 'data:image/webp;base64,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',
         nudge: null
       },
-      // 25. Biscoito Wafer (Distrator do Encarte Original)
+      // 25. Biscoito Cookies / Wafer (Distrator)
       {
         id: 'biscoito_wafer',
-        nome: 'Biscoito Wafer Recheado Sabores 140g',
+        nome: 'Biscoito Wafer Recheado Chocolate Pacote 140g',
         preco: 3.29,
-        unidade: 'un.',
+        unidade: 'pct.',
         sustentavel: false,
-        img: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?auto=format&fit=crop&w=600&q=80',
+        img: 'data:image/webp;base64,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',
         nudge: null
       }
     ];
 
     // ==========================================
-    // ESTADO EXPERIMENTAL DA SESSÃO
+    // ESTADO EXPERIMENTAL E TELEMETRIA DA SESSÃO
     // ==========================================
     let participanteId = sessionStorage.getItem('exp_ufms_id');
     if (!participanteId) {
@@ -682,6 +738,8 @@
 
     let tempoInicio = Date.now();
     let cliquesOrigemTotal = 0;
+    let totalRemocoes = 0;
+    let ordemCliques = [];
     let carrinho = {}; // { produtoId: quantidade }
 
     // Determinação do Grupo: URL (?grupo=controle ou ?grupo=nudge) ou Sorteio 50/50
@@ -699,6 +757,21 @@
     }
 
     let grupoAtivo = obterOuSortearGrupo();
+
+    // ==========================================
+    // TOAST DE NOTIFICAÇÃO
+    // ==========================================
+    let toastTimer = null;
+    function exibirAviso(titulo, mensagem) {
+      const toast = document.getElementById('toast-aviso');
+      document.getElementById('toast-titulo').textContent = titulo;
+      document.getElementById('toast-mensagem').textContent = mensagem;
+      toast.classList.remove('hidden');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 4000);
+    }
 
     // ==========================================
     // RENDERIZAÇÃO DA VITRINE EXPERIMENTAL
@@ -761,12 +834,16 @@
         }
 
         const card = document.createElement('div');
-        card.className = "bg-white rounded-xl p-3 shadow-sm hover:shadow-md transition border border-slate-200 flex flex-col justify-between relative group";
+        card.className = `bg-white rounded-xl p-3 shadow-sm hover:shadow-md transition border ${qtdAtual > 0 ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-slate-200'} flex flex-col justify-between relative group`;
+        card.id = `card-${p.id}`;
         card.innerHTML = `
           <div>
-            <!-- Imagem do Produto com Gramatura -->
+            <!-- Imagem do Produto com Gramatura e Limite -->
             <div class="relative w-full h-36 bg-slate-100 rounded-lg overflow-hidden mb-2.5">
-              <img src="${p.img}" alt="${p.nome}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80'">
+              <img src="${p.img}" alt="${p.nome}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='https://images.unsplash.com/photo-1567892737950-30c4db37cd89?auto=format&fit=crop&w=600&q=80'">
+              <span class="absolute top-1.5 left-1.5 bg-slate-900/75 text-amber-300 font-bold text-[9px] px-1.5 py-0.5 rounded backdrop-blur-xs">
+                Máx. 2 un.
+              </span>
               <span class="absolute bottom-1 right-1 bg-slate-900/80 text-white font-bold text-[9px] px-1.5 py-0.5 rounded backdrop-blur-xs">
                 ${p.unidade}
               </span>
@@ -782,7 +859,7 @@
           </div>
 
           <div>
-            <!-- Bloco de Preço Estilo Encarte Comper -->
+            <!-- Bloco de Preço Estilo Encarte -->
             <div class="flex items-baseline justify-between mb-2">
               <div class="text-rose-600 font-encarte flex items-start">
                 <span class="preco-rs mr-0.5">R$</span>
@@ -792,13 +869,16 @@
               <span class="preco-un">${p.unidade}</span>
             </div>
 
-            <!-- Controles de Quantidade / Adicionar -->
+            <!-- Controles de Quantidade / Adicionar (Limite 2 un.) -->
             <div class="flex items-center justify-between gap-1 bg-slate-100 p-1 rounded-lg">
               <button onclick="alterarQtd('${p.id}', -1)" class="w-8 h-8 rounded bg-white hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center shadow-sm text-sm active:scale-95 transition">
                 <i class="fa-solid fa-minus"></i>
               </button>
-              <span id="qtd-${p.id}" class="text-xs font-extrabold text-slate-900 w-8 text-center">${qtdAtual}</span>
-              <button onclick="alterarQtd('${p.id}', 1)" class="w-8 h-8 rounded bg-emerald-700 hover:bg-emerald-600 text-white font-bold flex items-center justify-center shadow-sm text-sm active:scale-95 transition">
+              <div class="text-center">
+                <span id="qtd-${p.id}" class="text-xs font-extrabold text-slate-900 block leading-none">${qtdAtual}</span>
+                <span class="text-[9px] text-slate-400 font-semibold">/ 2 un</span>
+              </div>
+              <button id="btn-add-${p.id}" onclick="alterarQtd('${p.id}', 1)" class="w-8 h-8 rounded ${qtdAtual >= MAX_UNIDADES_POR_ITEM ? 'bg-slate-300 text-slate-500 cursor-not-allowed' : 'bg-emerald-700 hover:bg-emerald-600 text-white'} font-bold flex items-center justify-center shadow-sm text-sm active:scale-95 transition">
                 <i class="fa-solid fa-plus"></i>
               </button>
             </div>
@@ -811,18 +891,74 @@
     }
 
     // ==========================================
-    // OPERAÇÕES DO CARRINHO & CÁLCULOS
+    // OPERAÇÕES DO CARRINHO COM TRAVA DE R$ 100 E MÁX 2 ITENS
     // ==========================================
     function alterarQtd(id, delta) {
+      const prod = PRODUTOS.find(p => p.id === id);
+      if (!prod) return;
+
       const atual = carrinho[id] || 0;
-      const novo = Math.max(0, atual + delta);
+      const novo = atual + delta;
+
+      if (novo < 0) return;
+
+      // Validação 1: Máximo de 2 unidades por item
+      if (delta > 0 && novo > MAX_UNIDADES_POR_ITEM) {
+        exibirAviso(
+          'Limite por Produto (Máx. 2 un.)',
+          `Para diversificar sua cesta na pesquisa, selecione de 1 a no máximo ${MAX_UNIDADES_POR_ITEM} unidades de cada produto.`
+        );
+        return;
+      }
+
+      // Validação 2: Teto Orçamentário de R$ 100,00
+      const metricasAtuais = calcularMetricas();
+      if (delta > 0 && (metricasAtuais.totalRS + prod.preco) > (ORCAMENTO_MAXIMO + 0.001)) {
+        const saldoDisp = (ORCAMENTO_MAXIMO - metricasAtuais.totalRS).toFixed(2).replace('.', ',');
+        exibirAviso(
+          'Orçamento de R$ 100,00 Atingido!',
+          `Este item custa R$ ${prod.preco.toFixed(2).replace('.', ',')} e seu saldo restante é de R$ ${saldoDisp}. Remova algum item ou finalize sua compra!`
+        );
+        return;
+      }
+
+      // Registro de Telemetria
+      if (delta > 0) {
+        ordemCliques.push(`${ordemCliques.length + 1}:${prod.id}(${prod.sustentavel ? 'S' : 'C'})`);
+      } else if (delta < 0) {
+        totalRemocoes++;
+      }
+
       if (novo === 0) {
         delete carrinho[id];
       } else {
         carrinho[id] = novo;
       }
+
+      // Atualiza visualmente o card
       const elQtd = document.getElementById(`qtd-${id}`);
       if (elQtd) elQtd.textContent = novo;
+
+      const btnAdd = document.getElementById(`btn-add-${id}`);
+      if (btnAdd) {
+        if (novo >= MAX_UNIDADES_POR_ITEM) {
+          btnAdd.className = "w-8 h-8 rounded bg-slate-300 text-slate-500 cursor-not-allowed font-bold flex items-center justify-center shadow-sm text-sm transition";
+        } else {
+          btnAdd.className = "w-8 h-8 rounded bg-emerald-700 hover:bg-emerald-600 text-white font-bold flex items-center justify-center shadow-sm text-sm active:scale-95 transition";
+        }
+      }
+
+      const card = document.getElementById(`card-${id}`);
+      if (card) {
+        if (novo > 0) {
+          card.classList.add('border-emerald-500', 'ring-2', 'ring-emerald-500/20');
+          card.classList.remove('border-slate-200');
+        } else {
+          card.classList.remove('border-emerald-500', 'ring-2', 'ring-emerald-500/20');
+          card.classList.add('border-slate-200');
+        }
+      }
+
       atualizarTotaisBarra();
     }
 
@@ -849,9 +985,11 @@
       });
 
       const percSustentavelRS = totalRS > 0 ? ((sustentavelRS / totalRS) * 100).toFixed(1) : 0;
+      const saldoRestante = Math.max(0, ORCAMENTO_MAXIMO - totalRS);
 
       return {
         totalRS,
+        saldoRestante,
         totalItens,
         sustentavelRS,
         sustentavelItens,
@@ -864,6 +1002,24 @@
       const metricas = calcularMetricas();
       document.getElementById('badge-qtd-itens').textContent = metricas.totalItens;
       document.getElementById('total-carrinho-display').textContent = 'R$ ' + metricas.totalRS.toFixed(2).replace('.', ',');
+      
+      const elSaldo = document.getElementById('saldo-restante-display');
+      elSaldo.textContent = 'R$ ' + metricas.saldoRestante.toFixed(2).replace('.', ',');
+
+      const percUso = Math.min(100, (metricas.totalRS / ORCAMENTO_MAXIMO) * 100);
+      const barra = document.getElementById('barra-progresso-orcamento');
+      barra.style.width = percUso + '%';
+
+      if (percUso >= 90) {
+        barra.className = 'h-full bg-rose-600 transition-all duration-300';
+        elSaldo.className = 'text-rose-600 font-extrabold';
+      } else if (percUso >= 70) {
+        barra.className = 'h-full bg-amber-500 transition-all duration-300';
+        elSaldo.className = 'text-amber-700 font-extrabold';
+      } else {
+        barra.className = 'h-full bg-emerald-600 transition-all duration-300';
+        elSaldo.className = 'text-emerald-700 font-extrabold';
+      }
     }
 
     function limparCarrinho() {
@@ -891,15 +1047,14 @@
     }
 
     // ==========================================
-    // CHECKOUT COM VALIDAÇÃO DEMOGRÁFICA
+    // CHECKOUT COM VALIDAÇÃO DEMOGRÁFICA E E-MAIL
     // ==========================================
     function iniciarCheckout() {
       const metricas = calcularMetricas();
       if (metricas.totalItens === 0) {
-        alert('Por favor, adicione ao menos um produto ao carrinho para simular sua compra.');
+        exibirAviso('Carrinho Vazio', 'Por favor, selecione ao menos um produto para simular sua compra e concorrer ao carrinho.');
         return;
       }
-      // Abre o modal obrigatório de Sexo e Ano de Nascimento
       document.getElementById('modal-demografico').classList.remove('hidden');
     }
 
@@ -909,37 +1064,40 @@
 
     function confirmarDadosEEnviar(e) {
       e.preventDefault();
+      const email = document.getElementById('campo-email').value.trim();
       const sexo = document.getElementById('campo-sexo').value;
       const anoNasc = document.getElementById('campo-ano-nascimento').value;
 
-      if (!sexo || !anoNasc) {
-        alert('Por favor, preencha todos os campos obrigatórios.');
+      if (!email || !sexo || !anoNasc) {
+        alert('Por favor, preencha seu e-mail, sexo e ano de nascimento.');
         return;
       }
 
       fecharModalDemografico();
-      processarEnvioFinal(sexo, anoNasc);
+      processarEnvioFinal(email, sexo, anoNasc);
     }
 
     // ==========================================
     // FINALIZAÇÃO E ENVIO DE DADOS (GOOGLE SHEETS)
     // ==========================================
-    function processarEnvioFinal(sexo, anoNascimento) {
+    function processarEnvioFinal(email, sexo, anoNascimento) {
       const metricas = calcularMetricas();
       const tempoDecisaoSeg = Math.round((Date.now() - tempoInicio) / 1000);
       const idadeCalculada = new Date().getFullYear() - parseInt(anoNascimento);
 
       // Preenche modal de agradecimento
+      document.getElementById('resumo-email').textContent = email;
       document.getElementById('resumo-qtd').textContent = `${metricas.totalItens} un`;
       document.getElementById('resumo-total').textContent = 'R$ ' + metricas.totalRS.toFixed(2).replace('.', ',');
       document.getElementById('resumo-sustentaveis').textContent = `${metricas.sustentavelItens} un (${metricas.percSustentavelRS}%)`;
       document.getElementById('resumo-perfil').textContent = `${sexo}, Nasc. ${anoNascimento} (~${idadeCalculada} anos)`;
       document.getElementById('modal-sucesso').classList.remove('hidden');
 
-      // Payload JSON estruturado para econometria
+      // Payload JSON estruturado (retrocompatível + e-mail e telemetria)
       const payload = {
         dataHora: new Date().toLocaleString('pt-BR'),
         idParticipante: participanteId,
+        email: email,
         grupo: grupoAtivo,
         sexo: sexo,
         anoNascimento: anoNascimento,
@@ -951,7 +1109,9 @@
         percSustentavel: metricas.percSustentavelRS,
         tempoSegundos: tempoDecisaoSeg,
         cliquesOrigem: cliquesOrigemTotal,
-        produtos: metricas.produtosStr
+        trocasRemocoes: totalRemocoes,
+        ordemEscolha: ordemCliques.join(' > '),
+        produtos: `${metricas.produtosStr} [ Contato: ${email} ]`
       };
 
       // 1. Armazena localmente (Backup de segurança)
@@ -969,7 +1129,7 @@
           body: JSON.stringify(payload)
         })
         .then(() => {
-          statusEnvio.innerHTML = '<i class="fa-solid fa-cloud-arrow-up text-emerald-600 mr-1"></i> Dados gravados com sucesso na sua Google Planilha!';
+          statusEnvio.innerHTML = '<i class="fa-solid fa-cloud-arrow-up text-emerald-600 mr-1"></i> Compra e participação no sorteio registradas com sucesso!';
         })
         .catch(err => {
           console.error(err);
