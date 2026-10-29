@@ -1,0 +1,795 @@
+html_code = """<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pesquisa UFMS - Experimento E-commerce</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Montserrat:wght@800;900&display=swap');
+    body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+    .font-encarte { font-family: 'Montserrat', sans-serif; }
+    .preco-rs { font-size: 1.1rem; line-height: 1; vertical-align: top; }
+    .preco-int { font-size: 2.4rem; line-height: 0.9; font-weight: 900; }
+    .preco-dec { font-size: 1.2rem; line-height: 1; vertical-align: top; font-weight: 800; }
+    .preco-un { font-size: 0.75rem; color: #475569; display: block; font-weight: 600; }
+    .badge-semaforo-a { background: #15803d; color: white; }
+    .badge-semaforo-b { background: #84cc16; color: #14532d; }
+    .badge-semaforo-c { background: #eab308; color: #713f12; }
+    .badge-semaforo-d { background: #f97316; color: white; }
+    .badge-semaforo-e { background: #dc2626; color: white; }
+  </style>
+</head>
+<body class="text-slate-800 pb-28">
+
+  <!-- BARRA DE CONTROLE DO PESQUISADOR (Fácil alternância e telemetria) -->
+  <header class="bg-slate-900 text-slate-200 text-xs py-2 px-4 shadow-md sticky top-0 z-50 border-b border-slate-700">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center space-x-2">
+        <span class="bg-emerald-600 text-white font-bold px-2 py-0.5 rounded text-[10px] tracking-wide uppercase">Ambiente Experimental</span>
+        <span class="font-semibold text-slate-300">Grupo Atual:</span>
+        <span id="badge-grupo-atual" class="font-bold text-amber-300 uppercase px-2 py-0.5 bg-slate-800 rounded border border-slate-700">Sorteando...</span>
+      </div>
+
+      <div class="flex items-center space-x-2">
+        <span class="text-slate-400 hidden sm:inline">Alternar Modo:</span>
+        <button onclick="forcarGrupo('controle')" id="btn-toggle-controle" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 transition">
+          <i class="fa-solid fa-store mr-1"></i> Sem Nudge (Controle)
+        </button>
+        <button onclick="forcarGrupo('nudge')" id="btn-toggle-nudge" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 transition">
+          <i class="fa-solid fa-leaf text-emerald-400 mr-1"></i> Com Nudge (Tratamento)
+        </button>
+        <button onclick="abrirModalConfig()" class="px-2.5 py-1 rounded bg-emerald-700 hover:bg-emerald-600 text-white font-medium transition ml-1">
+          <i class="fa-solid fa-database mr-1"></i> Conectar Planilha
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- CABEÇALHO DA PESQUISA UFMS ESTILO ENCARTE VAREJO -->
+  <div class="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 text-white py-6 px-4 shadow-lg border-b-4 border-amber-400">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="text-center md:text-left">
+        <div class="flex items-center justify-center md:justify-start gap-2 text-emerald-300 text-xs font-bold uppercase tracking-wider mb-1">
+          <i class="fa-solid fa-graduation-cap text-base"></i>
+          <span>Universidade Federal de Mato Grosso do Sul • PPGAD</span>
+        </div>
+        <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">Experimento de Decisão de Compra Online</h1>
+        <p class="text-xs md:text-sm text-slate-300 mt-1">
+          Doutorado em Administração | Pesquisador: <strong class="text-white">Estevão Diniz Broering</strong>
+        </p>
+      </div>
+
+      <div class="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/20 text-center max-w-sm">
+        <p class="text-xs text-emerald-200 font-semibold uppercase tracking-wider mb-0.5">Instrução ao Participante</p>
+        <p class="text-xs text-slate-100 leading-snug">
+          Simule suas compras habituais escolhendo os produtos que levaria para sua casa. Ao concluir, clique em <strong>"Finalizar Compra"</strong>.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- AVISO DE CONTEXTO EXPERIMENTAL (Visível apenas na tela de tratamento/nudge) -->
+  <div id="banner-nudge-info" class="hidden max-w-7xl mx-auto mt-4 px-4">
+    <div class="bg-emerald-50 border border-emerald-300 rounded-xl p-3 flex items-center justify-between shadow-sm">
+      <div class="flex items-center gap-3">
+        <span class="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center text-lg flex-shrink-0">
+          <i class="fa-solid fa-seedling"></i>
+        </span>
+        <div>
+          <h2 class="text-xs font-bold text-emerald-950 uppercase tracking-wide">Sinalização de Impacto Socioambiental & Origem</h2>
+          <p class="text-xs text-emerald-800">
+            Itens sustentáveis estão destacados com o <strong>Eco-Semáforo Climático</strong> e botão de <strong>Rastreabilidade de Origem</strong> (redução da distância psicológica).
+          </p>
+        </div>
+      </div>
+      <div class="hidden md:flex items-center gap-1.5 text-[11px] font-bold bg-white px-2.5 py-1 rounded border border-emerald-200 text-emerald-900">
+        <span class="w-3 h-3 rounded-full badge-semaforo-a inline-block"></span> A (Baixo Carbono)
+        <span class="w-3 h-3 rounded-full badge-semaforo-b inline-block ml-1"></span> B
+        <span class="w-3 h-3 rounded-full badge-semaforo-c inline-block ml-1"></span> C
+        <span class="w-3 h-3 rounded-full badge-semaforo-d inline-block ml-1"></span> D
+        <span class="w-3 h-3 rounded-full badge-semaforo-e inline-block ml-1"></span> E (Alto Carbono)
+      </div>
+    </div>
+  </div>
+
+  <!-- VITRINE / GRID DE PRODUTOS NO ESTILO ENCARTE (15 ITENS) -->
+  <main class="max-w-7xl mx-auto px-4 mt-6">
+    <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-300">
+      <div>
+        <h2 class="text-lg font-black text-slate-800 uppercase tracking-wide flex items-center gap-2">
+          <i class="fa-solid fa-basket-shopping text-emerald-700"></i> Seção de Ofertas & Hortifrúti
+        </h2>
+        <span class="text-xs text-slate-500">Selecione as quantidades desejadas para adicionar ao seu carrinho</span>
+      </div>
+      <span class="text-xs font-semibold text-slate-600 bg-slate-200 px-2.5 py-1 rounded-full">
+        15 Produtos Disponíveis
+      </span>
+    </div>
+
+    <div id="grid-produtos" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
+      <!-- Inserido dinamicamente via JavaScript -->
+    </div>
+  </main>
+
+  <!-- BARRA INFERIOR FIXA DO CARRINHO (ESTILO CHECKOUT) -->
+  <footer class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t-2 border-emerald-600 shadow-2xl py-3 px-4 z-40">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <div class="relative cursor-pointer" onclick="abrirResumoCarrinho()">
+          <span class="w-12 h-12 rounded-full bg-emerald-700 text-white flex items-center justify-center text-xl shadow">
+            <i class="fa-solid fa-cart-shopping"></i>
+          </span>
+          <span id="badge-qtd-itens" class="absolute -top-1 -right-1 bg-amber-500 text-slate-900 font-extrabold text-xs w-5 h-5 rounded-full flex items-center justify-center border-2 border-white">0</span>
+        </div>
+        <div>
+          <div class="text-[11px] text-slate-500 font-bold uppercase tracking-wider">Total do Seu Pedido</div>
+          <div class="text-xl md:text-2xl font-black text-slate-900" id="total-carrinho-display">R$ 0,00</div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button onclick="limparCarrinho()" class="text-xs text-slate-500 hover:text-rose-600 font-semibold px-2 py-1.5 transition hidden sm:inline">
+          <i class="fa-solid fa-trash-can mr-1"></i> Esvaziar
+        </button>
+        <button onclick="finalizarCompra()" class="bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-extrabold text-sm md:text-base px-5 md:px-7 py-3 rounded-xl shadow-lg hover:shadow-emerald-500/25 transition transform active:scale-95 flex items-center gap-2">
+          <span>Finalizar Compra</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MODAL DE ORIGEM / RASTREABILIDADE (REDUÇÃO DA DISTÂNCIA ESPACIAL) -->
+  <div id="modal-origem" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full overflow-hidden shadow-2xl border border-emerald-500 animate-in fade-in zoom-in duration-200">
+      <div class="relative h-44 bg-slate-200">
+        <img id="modal-origem-img" src="" alt="Fazenda" class="w-full h-full object-cover">
+        <button onclick="fecharModalOrigem()" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-slate-900/70 text-white flex items-center justify-center hover:bg-slate-950 transition">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div class="absolute bottom-2 left-3 bg-emerald-800/90 text-white text-[10px] font-bold px-2 py-0.5 rounded backdrop-blur-sm">
+          <i class="fa-solid fa-location-dot mr-1"></i> Origem Verificada
+        </div>
+      </div>
+      <div class="p-5">
+        <div class="flex items-center gap-2 text-xs font-bold text-emerald-700 uppercase tracking-wide mb-1" id="modal-origem-tipo">
+          Produção Agroecológica Familiar
+        </div>
+        <h3 class="text-lg font-bold text-slate-900" id="modal-origem-titulo">Nome do Produtor / Fazenda</h3>
+        <p class="text-xs text-slate-500 mb-3" id="modal-origem-local">Município - MS • Distância da Capital</p>
+        
+        <p class="text-xs text-slate-600 leading-relaxed mb-4 bg-slate-50 p-3 rounded-lg border border-slate-200" id="modal-origem-descricao">
+          Informações sobre a colheita sustentável e redução das emissões logísticas.
+        </p>
+
+        <button onclick="fecharModalOrigem()" class="w-full bg-emerald-700 hover:bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition">
+          Fechar e Retornar ao Encarte
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE SUCESSO / AGRADECIMENTO FINAL -->
+  <div id="modal-sucesso" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 text-center shadow-2xl border-t-8 border-emerald-600 animate-in fade-in zoom-in duration-200">
+      <div class="w-16 h-16 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto text-3xl mb-3">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <h3 class="text-xl font-black text-slate-900 mb-1">Compra Simulada Concluída com Sucesso!</h3>
+      <p class="text-xs text-slate-600 mb-4">
+        Sua participação foi registrada na base de dados do <strong>Doutorado em Administração da UFMS</strong>. Muito obrigado pela colaboração com a pesquisa científica!
+      </p>
+
+      <!-- RESUMO DA COMPRA -->
+      <div class="bg-slate-50 rounded-xl p-4 text-left border border-slate-200 mb-4 text-xs space-y-2">
+        <div class="flex justify-between border-b pb-1 font-bold text-slate-700">
+          <span>Total de Itens:</span>
+          <span id="resumo-qtd">0 un</span>
+        </div>
+        <div class="flex justify-between border-b pb-1 font-bold text-slate-700">
+          <span>Gasto Total:</span>
+          <span id="resumo-total">R$ 0,00</span>
+        </div>
+        <div class="flex justify-between border-b pb-1 text-emerald-800 font-bold">
+          <span>Itens Sustentáveis:</span>
+          <span id="resumo-sustentaveis">0 un (0%)</span>
+        </div>
+        <div class="flex justify-between text-slate-500 text-[11px]">
+          <span>Grupo de Amostragem:</span>
+          <span id="resumo-grupo" class="font-bold uppercase text-slate-700">--</span>
+        </div>
+      </div>
+
+      <div id="status-envio-planilha" class="text-xs font-semibold text-emerald-700 mb-4">
+        <i class="fa-solid fa-spinner fa-spin mr-1"></i> Gravando registro no banco de dados...
+      </div>
+
+      <button onclick="reiniciarExperimento()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition">
+        Realizar Nova Simulação
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL DE CONFIGURAÇÃO DE URL DO GOOGLE APPS SCRIPT -->
+  <div id="modal-config" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-300">
+      <div class="flex justify-between items-center mb-3">
+        <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+          <i class="fa-solid fa-gears text-emerald-600"></i> Configurar Conexão Google Planilhas
+        </h3>
+        <button onclick="fecharModalConfig()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      
+      <p class="text-xs text-slate-600 mb-3">
+        Insira a <strong>URL do App da Web</strong> gerada no Google Apps Script da sua planilha para receber os dados automaticamente:
+      </p>
+
+      <input type="url" id="input-script-url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 font-mono text-slate-800 mb-3">
+
+      <div class="flex gap-2 justify-end">
+        <button onclick="fecharModalConfig()" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-100">Cancelar</button>
+        <button onclick="salvarConfigScript()" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-emerald-700 hover:bg-emerald-600 text-white">Salvar Conexão</button>
+      </div>
+
+      <div class="mt-4 pt-3 border-t border-slate-200">
+        <button onclick="baixarCSVLocal()" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-lg flex items-center justify-center gap-1.5 transition">
+          <i class="fa-solid fa-file-csv text-emerald-700"></i> Baixar Dados Salvos em Navegador (.CSV)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================
+    // BASE DE DADOS DOS PRODUTOS (COM FOTOS REAIS)
+    // ==========================================
+    const PRODUTOS = [
+      // 1. Café Orgânico (Sustentável)
+      {
+        id: 'cafe_organico',
+        nome: 'Café Especial Orgânico em Grãos ou Moído 500g',
+        preco: 22.90,
+        unidade: 'un.',
+        sustentavel: true,
+        img: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?auto=format&fit=crop&w=600&q=80',
+        nudge: {
+          tag: 'Orgânico Certificado',
+          ecoClass: 'badge-semaforo-a',
+          ecoLetra: 'A',
+          ecoTexto: '-64% Emissões de CO2',
+          origemTitulo: 'Fazenda Agroecológica Serra da Bodoquena',
+          origemLocal: 'Bodoquena - MS (180 km da capital)',
+          origemDesc: 'Cultivado sob sistema agroflorestal sombreado, sem agrotóxicos e preservando nascentes do Pantanal sul-mato-grossense.',
+          origemImg: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=600&q=80'
+        }
+      },
+      // 2. Café Tradicional
+      {
+        id: 'cafe_tradicional',
+        nome: 'Café Torrado e Moído Tradicional 500g',
+        preco: 17.50,
+        unidade: 'un.',
+        sustentavel: false,
+        img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80',
+        nudge: null
+      },
+      // 3. Chocolate 70% Cacau Rastreado (Sustentável)
+      {
+        id: 'chocolate_cacau_sustentavel',
+        nome: 'Chocolate Amargo 70% Cacau Sustentável 100g',
+        preco: 14.90,
+        unidade: 'un.',
+        sustentavel: true,
+        img: 'https://images.unsplash.com/photo-1549007994-cb92caebd54b?auto=format&fit=crop&w=600&q=80',
+        nudge: {
+          tag: 'Cacau Nativo Regenerativo',
+          ecoClass: 'badge-semaforo-a',
+          ecoLetra: 'A',
+          ecoTexto: 'Cadeia Desmatamento Zero',
+          origemTitulo: 'Cooperativa Agroextrativista Vale do Juruena',
+          origemLocal: 'Cacau de Floresta Nativa',
+          origemDesc: 'Cacau selvagem colhido por comunidades tradicionais. Ajuda a manter a floresta em pé e remunera os produtores locais com comércio justo.',
+          origemImg: 'https://images.unsplash.com/photo-1511497584788-87676104235f?auto=format&fit=crop&w=600&q=80'
+        }
+      },
+      // 4. Chocolate Comum
+      {
+        id: 'chocolate_ao_leite',
+        nome: 'Chocolate Barra Tradicional ao Leite 90g',
+        preco: 8.90,
+        unidade: 'un.',
+        sustentavel: false,
+        img: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=600&q=80',
+        nudge: null
+      },
+      // 5. Morango Orgânico Local MS (Sustentável)
+      {
+        id: 'morango_organico',
+        nome: 'Morango Orgânico Selecionado Bandeja 250g',
+        preco: 11.90,
+        unidade: 'bdj.',
+        sustentavel: true,
+        img: 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?auto=format&fit=crop&w=600&q=80',
+        nudge: {
+          tag: 'Sem Agrotóxicos • Local MS',
+          ecoClass: 'badge-semaforo-a',
+          ecoLetra: 'A',
+          ecoTexto: '0% Defensivos Químicos',
+          origemTitulo: 'Chácara Vale Verde dos Produtores de Terenos',
+          origemLocal: 'Cinturão Verde de Terenos - MS (35 km)',
+          origemDesc: 'Colheita da madrugada entregue no mesmo dia. Redução de 90% na emissão de transporte comparado a frutas trazidas de outros estados.',
+          origemImg: 'https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?auto=format&fit=crop&w=600&q=80'
+        }
+      },
+      // 6. Morango Convencional
+      {
+        id: 'morango_convencional',
+        nome: 'Morango Doce Selecionado Bandeja 250g',
+        preco: 8.50,
+        unidade: 'bdj.',
+        sustentavel: false,
+        img: 'https://images.unsplash.com/photo-1587393855524-087f83d95bc9?auto=format&fit=crop&w=600&q=80',
+        nudge: null
+      },
+      // 7. Alface Hidropônica Sustentável (Sustentável)
+      {
+        id: 'alface_sustentavel',
+        nome: 'Alface Americana Hidropônica Sustentável Unidade',
+        preco: 4.80,
+        unidade: 'un.',
+        sustentavel: true,
+        img: 'https://images.unsplash.com/photo-1622206151226-18ca2c9ab4a1?auto=format&fit=crop&w=600&q=80',
+        nudge: {
+          tag: 'Economia de 85% de Água',
+          ecoClass: 'badge-semaforo-a',
+          ecoLetra: 'A',
+          ecoTexto: 'Produção Sustentável MS',
+          origemTitulo: 'Horta Hidropônica Limpa Campo Grande',
+          origemLocal: 'Zona Rural Leste - Campo Grande - MS',
+          origemDesc: 'Cultivada com reaproveitamento integral da água da chuva em estufas climatizadas, sem contato com solo contaminado.',
+          origemImg: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=600&q=80'
+        }
+      },
+      // 8. Alface Comum
+      {
+        id: 'alface_crespa_comum',
+        nome: 'Alface Crespa Tradicional Maço Fresco',
+        preco: 3.20,
+        unidade: 'un.',
+        sustentavel: false,
+        img: 'https://images.unsplash.com/photo-1556801712-76c8eb07bbc9?auto=format&fit=crop&w=600&q=80',
+        nudge: null
+      },
+      // 9. Tomate Orgânico Rama (Sustentável)
+      {
+        id: 'tomate_organico',
+        nome: 'Tomate Saladete Orgânico Bandeja 500g',
+        preco: 7.90,
+        unidade: 'bdj.',
+        sustentavel: true,
+        img: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80',
+        nudge: {
+          tag: 'Adubação 100% Biológica',
+          ecoClass: 'badge-semaforo-a',
+          ecoLetra: 'A',
+          ecoTexto: 'Solo Vivo & Saudável',
+          origemTitulo: 'Associação Hortigranjeira de Rochedo',
+          origemLocal: 'Rochedo - MS (75 km da capital)',
+          origemDesc: 'Frutos colhidos em ponto ideal de maturação natural, adubados com compostagem orgânica e livres de agrotóxicos.',
+          origemImg: 'https://images.unsplash.com/photo-1592417817098-8f3d6910985b?auto=format&fit=crop&w=600&q=80'
+        }
+      },
+      // 10. Tomate Convencional
+      {
+        id: 'tomate_convencional',
+        nome: 'Tomate Longa Vida Especial Vermelho 1kg',
+        preco: 6.49,
+        unidade: 'kg',
+        sustentavel: false,
+        img: 'https://images.unsplash.com/photo-1546470427-e26264be0b11?auto=format&fit=crop&w=600&q=80',
+        nudge: null
+      },
+      // 11. Banana Orgânica Climatizada (Sustentável)
+      {
+        id: 'banana_organica',
+        nome: 'Banana Prata Orgânica Certificada Climatizada 1kg',
+        preco: 8.90,
+        unidade: 'kg',
+        sustentavel: true,
+        img: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=600&q=80',
+        nudge: {
+          tag: 'Agricultura Familiar MS',
+          ecoClass: 'badge-semaforo-a',
+          ecoLetra: 'A',
+          ecoTexto: 'Pegada de Carbono Neutra',
+          origemTitulo: 'Sítio Frutos da Terra Aquidauana',
+          origemLocal: 'Distrito de Piraputanga - Aquidauana / MS',
+          origemDesc: 'Produzida no sopé da serra de Maracaju com manejo sustentável do solo e sem uso de fertilizantes sintéticos.',
+          origemImg: 'https://images.unsplash.com/photo-1528825871115-3581a5387919?auto=format&fit=crop&w=600&q=80'
+        }
+      },
+      // 12. Banana Comum
+      {
+        id: 'banana_nanica_comum',
+        nome: 'Banana Nanica Tradicional Granel 1kg',
+        preco: 5.99,
+        unidade: 'kg',
+        sustentavel: false,
+        img: 'https://images.unsplash.com/photo-1603833665858-e61d17a86224?auto=format&fit=crop&w=600&q=80',
+        nudge: null
+      },
+      // 13. Paçoquita Rolha (Distrator do Encarte Original)
+      {
+        id: 'pacoquita_rolha',
+        nome: 'Doce Paçoca Rolha Tradicional Pote 210g',
+        preco: 11.90,
+        unidade: 'un.',
+        sustentavel: false,
+        img: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=600&q=80',
+        nudge: null
+      },
+      // 14. Amendoim Japonês (Distrator do Encarte Original)
+      {
+        id: 'amendoim_japones',
+        nome: 'Amendoim Tipo Japonês Crocante Pacote 500g',
+        preco: 23.90,
+        unidade: 'un.',
+        sustentavel: false,
+        img: 'https://images.unsplash.com/photo-1569460275917-70300d696afd?auto=format&fit=crop&w=600&q=80',
+        nudge: null
+      },
+      // 15. Biscoito Wafer (Distrator do Encarte Original)
+      {
+        id: 'biscoito_wafer',
+        nome: 'Biscoito Wafer Recheado Sabores 140g',
+        preco: 3.29,
+        unidade: 'un.',
+        sustentavel: false,
+        img: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?auto=format&fit=crop&w=600&q=80',
+        nudge: null
+      }
+    ];
+
+    // ==========================================
+    // ESTADO EXPERIMENTAL DA SESSÃO
+    // ==========================================
+    let participanteId = sessionStorage.getItem('exp_ufms_id');
+    if (!participanteId) {
+      participanteId = 'UFMS_' + Math.random().toString(36).substring(2, 9).toUpperCase();
+      sessionStorage.setItem('exp_ufms_id', participanteId);
+    }
+
+    let tempoInicio = Date.now();
+    let cliquesOrigemTotal = 0;
+    let carrinho = {}; // { produtoId: quantidade }
+
+    // Determinação do Grupo: URL (?grupo=controle ou ?grupo=nudge) ou Sorteio 50/50
+    function obterOuSortearGrupo() {
+      const params = new URLSearchParams(window.location.search);
+      const paramGrupo = params.get('grupo');
+      if (paramGrupo === 'controle' || paramGrupo === 'nudge') {
+        return paramGrupo;
+      }
+      let grupoSalvo = sessionStorage.getItem('exp_ufms_grupo');
+      if (!grupoSalvo) {
+        grupoSalvo = Math.random() < 0.5 ? 'controle' : 'nudge';
+        sessionStorage.setItem('exp_ufms_grupo', grupoSalvo);
+      }
+      return grupoSalvo;
+    }
+
+    let grupoAtivo = obterOuSortearGrupo();
+
+    // ==========================================
+    // RENDERIZAÇÃO DA VITRINE EXPERIMENTAL
+    // ==========================================
+    function renderizarVitrine() {
+      const badgeGrupo = document.getElementById('badge-grupo-atual');
+      const bannerNudge = document.getElementById('banner-nudge-info');
+      const btnControle = document.getElementById('btn-toggle-controle');
+      const btnNudge = document.getElementById('btn-toggle-nudge');
+
+      if (grupoAtivo === 'nudge') {
+        badgeGrupo.textContent = 'Tratamento (Com Nudge)';
+        badgeGrupo.className = 'font-bold text-emerald-400 uppercase px-2 py-0.5 bg-emerald-950/60 rounded border border-emerald-500';
+        bannerNudge.classList.remove('hidden');
+        btnNudge.classList.add('bg-emerald-800', 'text-white', 'border-emerald-500');
+        btnControle.classList.remove('bg-slate-700', 'text-white');
+      } else {
+        badgeGrupo.textContent = 'Controle (Sem Nudge)';
+        badgeGrupo.className = 'font-bold text-amber-300 uppercase px-2 py-0.5 bg-slate-800 rounded border border-amber-500';
+        bannerNudge.classList.add('hidden');
+        btnControle.classList.add('bg-slate-700', 'text-white', 'border-amber-400');
+        btnNudge.classList.remove('bg-emerald-800', 'text-white', 'border-emerald-500');
+      }
+
+      const grid = document.getElementById('grid-produtos');
+      grid.innerHTML = '';
+
+      PRODUTOS.forEach(p => {
+        const qtdAtual = carrinho[p.id] || 0;
+        const partesPreco = p.preco.toFixed(2).split('.');
+        const precoInt = partesPreco[0];
+        const precoDec = partesPreco[1];
+
+        // Bloco condicional de Nudge (Apenas na Tela de Tratamento)
+        let htmlNudge = '';
+        if (grupoAtivo === 'nudge' && p.sustentavel && p.nudge) {
+          htmlNudge = `
+            <div class="mb-2 bg-emerald-50 p-2 rounded-lg border border-emerald-200">
+              <div class="flex items-center justify-between gap-1 mb-1">
+                <span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-emerald-700 text-white tracking-wide">
+                  <i class="fa-solid fa-leaf mr-0.5"></i> ${p.nudge.tag}
+                </span>
+                <span class="${p.nudge.ecoClass} text-[10px] font-black px-1.5 py-0.5 rounded-full flex items-center gap-1 shadow-sm" title="Classificação de Emissão de Carbono">
+                  <span>${p.nudge.ecoLetra}</span>
+                  <i class="fa-solid fa-cloud text-[8px]"></i>
+                </span>
+              </div>
+              <div class="text-[10px] text-emerald-900 font-semibold mb-1.5">
+                <i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i>${p.nudge.ecoTexto}
+              </div>
+              <button onclick="abrirModalOrigem('${p.id}')" class="w-full bg-white hover:bg-emerald-100 text-emerald-800 font-bold text-[10px] py-1 px-1.5 rounded border border-emerald-300 flex items-center justify-center gap-1 transition">
+                <i class="fa-solid fa-qrcode text-emerald-600"></i> Ver Fazenda & Origem MS
+              </button>
+            </div>
+          `;
+        }
+
+        const card = document.createElement('div');
+        card.className = "bg-white rounded-xl p-3 shadow-sm hover:shadow-md transition border border-slate-200 flex flex-col justify-between relative group";
+        card.innerHTML = `
+          <div>
+            <!-- Imagem do Produto com Gramatura -->
+            <div class="relative w-full h-36 bg-slate-100 rounded-lg overflow-hidden mb-2.5">
+              <img src="${p.img}" alt="${p.nome}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80'">
+              <span class="absolute bottom-1 right-1 bg-slate-900/80 text-white font-bold text-[9px] px-1.5 py-0.5 rounded backdrop-blur-xs">
+                ${p.unidade}
+              </span>
+            </div>
+
+            <!-- Título do Produto -->
+            <h3 class="text-xs font-bold text-slate-800 line-clamp-2 min-h-[32px] leading-tight mb-2">
+              ${p.nome}
+            </h3>
+
+            <!-- Intervenção de Nudge -->
+            ${htmlNudge}
+          </div>
+
+          <div>
+            <!-- Bloco de Preço Estilo Encarte Comper -->
+            <div class="flex items-baseline justify-between mb-2">
+              <div class="text-rose-600 font-encarte flex items-start">
+                <span class="preco-rs mr-0.5">R$</span>
+                <span class="preco-int">${precoInt}</span>
+                <span class="preco-dec">,${precoDec}</span>
+              </div>
+              <span class="preco-un">${p.unidade}</span>
+            </div>
+
+            <!-- Controles de Quantidade / Adicionar -->
+            <div class="flex items-center justify-between gap-1 bg-slate-100 p-1 rounded-lg">
+              <button onclick="alterarQtd('${p.id}', -1)" class="w-8 h-8 rounded bg-white hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center shadow-sm text-sm active:scale-95 transition">
+                <i class="fa-solid fa-minus"></i>
+              </button>
+              <span id="qtd-${p.id}" class="text-xs font-extrabold text-slate-900 w-8 text-center">${qtdAtual}</span>
+              <button onclick="alterarQtd('${p.id}', 1)" class="w-8 h-8 rounded bg-emerald-700 hover:bg-emerald-600 text-white font-bold flex items-center justify-center shadow-sm text-sm active:scale-95 transition">
+                <i class="fa-solid fa-plus"></i>
+              </button>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      atualizarTotaisBarra();
+    }
+
+    // ==========================================
+    // OPERAÇÕES DO CARRINHO & CÁLCULOS
+    // ==========================================
+    function alterarQtd(id, delta) {
+      const atual = carrinho[id] || 0;
+      const novo = Math.max(0, atual + delta);
+      if (novo === 0) {
+        delete carrinho[id];
+      } else {
+        carrinho[id] = novo;
+      }
+      const elQtd = document.getElementById(`qtd-${id}`);
+      if (elQtd) elQtd.textContent = novo;
+      atualizarTotaisBarra();
+    }
+
+    function calcularMetricas() {
+      let totalRS = 0;
+      let totalItens = 0;
+      let sustentavelRS = 0;
+      let sustentavelItens = 0;
+      let listaNomes = [];
+
+      PRODUTOS.forEach(p => {
+        const qtd = carrinho[p.id] || 0;
+        if (qtd > 0) {
+          const subtotal = p.preco * qtd;
+          totalRS += subtotal;
+          totalItens += qtd;
+          listaNomes.push(`${p.nome} (${qtd}x)`);
+
+          if (p.sustentavel) {
+            sustentavelRS += subtotal;
+            sustentavelItens += qtd;
+          }
+        }
+      });
+
+      const percSustentavelRS = totalRS > 0 ? ((sustentavelRS / totalRS) * 100).toFixed(1) : 0;
+
+      return {
+        totalRS,
+        totalItens,
+        sustentavelRS,
+        sustentavelItens,
+        percSustentavelRS,
+        produtosStr: listaNomes.join(' | ')
+      };
+    }
+
+    function atualizarTotaisBarra() {
+      const metricas = calcularMetricas();
+      document.getElementById('badge-qtd-itens').textContent = metricas.totalItens;
+      document.getElementById('total-carrinho-display').textContent = 'R$ ' + metricas.totalRS.toFixed(2).replace('.', ',');
+    }
+
+    function limparCarrinho() {
+      carrinho = {};
+      renderizarVitrine();
+    }
+
+    // ==========================================
+    // MODAL DE RASTREABILIDADE (DISTÂNCIA ESPACIAL)
+    // ==========================================
+    function abrirModalOrigem(id) {
+      cliquesOrigemTotal++;
+      const prod = PRODUTOS.find(p => p.id === id);
+      if (!prod || !prod.nudge) return;
+
+      document.getElementById('modal-origem-img').src = prod.nudge.origemImg;
+      document.getElementById('modal-origem-titulo').textContent = prod.nudge.origemTitulo;
+      document.getElementById('modal-origem-local').textContent = prod.nudge.origemLocal;
+      document.getElementById('modal-origem-descricao').textContent = prod.nudge.origemDesc;
+      document.getElementById('modal-origem').classList.remove('hidden');
+    }
+
+    function fecharModalOrigem() {
+      document.getElementById('modal-origem').classList.add('hidden');
+    }
+
+    // ==========================================
+    // FINALIZAÇÃO E ENVIO DE DADOS (GOOGLE SHEETS)
+    // ==========================================
+    function finalizarCompra() {
+      const metricas = calcularMetricas();
+      if (metricas.totalItens === 0) {
+        alert('Por favor, adicione ao menos um produto ao carrinho para simular sua compra.');
+        return;
+      }
+
+      const tempoDecisaoSeg = Math.round((Date.now() - tempoInicio) / 1000);
+
+      // Preenche modal de agradecimento
+      document.getElementById('resumo-qtd').textContent = `${metricas.totalItens} un`;
+      document.getElementById('resumo-total').textContent = 'R$ ' + metricas.totalRS.toFixed(2).replace('.', ',');
+      document.getElementById('resumo-sustentaveis').textContent = `${metricas.sustentavelItens} un (${metricas.percSustentavelRS}%)`;
+      document.getElementById('resumo-grupo').textContent = grupoAtivo === 'nudge' ? 'Tratamento (Com Semáforo)' : 'Controle (Sem Semáforo)';
+      document.getElementById('modal-sucesso').classList.remove('hidden');
+
+      // Payload JSON estruturado para econometria
+      const payload = {
+        dataHora: new Date().toLocaleString('pt-BR'),
+        idParticipante: participanteId,
+        grupo: grupoAtivo,
+        itensTotais: metricas.totalItens,
+        itensSustentaveis: metricas.sustentavelItens,
+        gastoTotal: metricas.totalRS.toFixed(2),
+        gastoSustentavel: metricas.sustentavelRS.toFixed(2),
+        percSustentavel: metricas.percSustentavelRS,
+        tempoSegundos: tempoDecisaoSeg,
+        cliquesOrigem: cliquesOrigemTotal,
+        produtos: metricas.produtosStr
+      };
+
+      // 1. Armazena localmente (Backup de segurança)
+      salvarLocalmente(payload);
+
+      // 2. Envia para o Google Planilhas (Apps Script)
+      const scriptURL = localStorage.getItem('exp_ufms_script_url');
+      const statusEnvio = document.getElementById('status-envio-planilha');
+
+      if (scriptURL) {
+        fetch(scriptURL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+        .then(() => {
+          statusEnvio.innerHTML = '<i class="fa-solid fa-cloud-arrow-up text-emerald-600 mr-1"></i> Dados gravados com sucesso na Google Planilha!';
+        })
+        .catch(err => {
+          console.error(err);
+          statusEnvio.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-amber-600 mr-1"></i> Dados gravados localmente (Modo Offline).';
+        });
+      } else {
+        statusEnvio.innerHTML = '<i class="fa-solid fa-check text-slate-500 mr-1"></i> Dados salvos localmente no navegador (Conecte uma planilha quando desejar).';
+      }
+    }
+
+    function salvarLocalmente(obj) {
+      let historico = JSON.parse(localStorage.getItem('exp_ufms_respostas') || '[]');
+      historico.push(obj);
+      localStorage.setItem('exp_ufms_respostas', JSON.stringify(historico));
+    }
+
+    function reiniciarExperimento() {
+      sessionStorage.removeItem('exp_ufms_id');
+      sessionStorage.removeItem('exp_ufms_grupo');
+      window.location.reload();
+    }
+
+    // ==========================================
+    // CONTROLES DE PESQUISADOR (MODO BANCA/TESTE)
+    // ==========================================
+    function forcarGrupo(tipo) {
+      grupoAtivo = tipo;
+      sessionStorage.setItem('exp_ufms_grupo', tipo);
+      tempoInicio = Date.now();
+      renderizarVitrine();
+    }
+
+    function abrirModalConfig() {
+      document.getElementById('input-script-url').value = localStorage.getItem('exp_ufms_script_url') || '';
+      document.getElementById('modal-config').classList.remove('hidden');
+    }
+
+    function fecharModalConfig() {
+      document.getElementById('modal-config').classList.add('hidden');
+    }
+
+    function salvarConfigScript() {
+      const url = document.getElementById('input-script-url').value.trim();
+      localStorage.setItem('exp_ufms_script_url', url);
+      alert('Conexão configurada com sucesso!');
+      fecharModalConfig();
+    }
+
+    function baixarCSVLocal() {
+      const historico = JSON.parse(localStorage.getItem('exp_ufms_respostas') || '[]');
+      if (historico.length === 0) {
+        alert('Nenhum dado registrado neste dispositivo ainda.');
+        return;
+      }
+      const cabecalho = Object.keys(historico[0]).join(';');
+      const linhas = historico.map(obj => Object.values(obj).map(v => `"${v}"`).join(';')).join('\\n');
+      const csvContent = "data:text/csv;charset=utf-8," + encodeURIComponent(cabecalho + "\\n" + linhas);
+      const link = document.createElement("a");
+      link.setAttribute("href", csvContent);
+      link.setAttribute("download", `experimento_ufms_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // Inicialização
+    renderizarVitrine();
+  </script>
+</body>
+</html>"""
+
+with open("index.html", "w", encoding="utf-8") as f:
+    f.write(html_code)
+
+print("index.html salvo com sucesso!")
