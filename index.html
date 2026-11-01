@@ -1114,7 +1114,7 @@
       document.getElementById('resumo-perfil').textContent = `${sexo}, Nasc. ${anoNascimento} (~${idadeCalculada} anos)`;
       document.getElementById('modal-sucesso').classList.remove('hidden');
 
-      // Payload JSON estruturado (retrocompatível + e-mail dedicado e telemetria)
+ // Payload JSON estruturado (retrocompatível + e-mail dedicado e telemetria)
       const payload = {
         dataHora: new Date().toLocaleString('pt-BR'),
         idParticipante: participanteId,
@@ -1126,7 +1126,7 @@
         itensTotais: metricas.totalItens,
         itensSustentaveis: metricas.sustentavelItens,
         gastoTotal: metricas.totalRS.toFixed(2),
-        gastoSustentavel: metricas.gastoSustentavel.toFixed(2),
+        gastoSustentavel: metricas.sustentavelRS.toFixed(2), // <--- CORRIGIDO AQUI
         percSustentavel: metricas.percSustentavelRS,
         tempoSegundos: tempoDecisaoSeg,
         cliquesOrigem: cliquesOrigemTotal,
