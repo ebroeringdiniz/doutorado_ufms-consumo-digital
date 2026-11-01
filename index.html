@@ -1142,11 +1142,11 @@
       const scriptURL = localStorage.getItem('exp_ufms_script_url') || DEFAULT_SCRIPT_URL;
       const statusEnvio = document.getElementById('status-envio-planilha');
 
-      if (scriptURL) {
+    if (scriptURL) {
         fetch(scriptURL, {
           method: 'POST',
           mode: 'no-cors',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // <-- SOLUÇÃO
           body: JSON.stringify(payload)
         })
         .then(() => {
